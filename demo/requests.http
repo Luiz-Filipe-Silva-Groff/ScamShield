@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:8000
+@apiKey = scamshield-demo-local
+
+### Informações compatíveis: SAFE / 0
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/safe.json
+
+### Nome diferente no cadastro: WARNING / 25
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/name_warning.json
+
+### Cobrança com intermediário: WARNING / 10
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/intermediary.json
+
+### Valor adulterado: DANGER / 60
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/amount_danger.json
+
+### Cadastro baixado: DANGER / 60
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/registry_danger.json
+
+### Erro nos dígitos verificadores: DANGER / 70
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/invalid_dv.json
+
+### Leitura indisponível: WARNING / 10
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/unreadable.json
+
+### Consulta não terminou a tempo: WARNING / 10
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/registry_timeout.json
+
+### Nome fantasia compatível: SAFE / 0
+POST {{baseUrl}}/v1/analise
+X-API-Key: {{apiKey}}
+Content-Type: application/json
+
+< ./requests/trade_name.json

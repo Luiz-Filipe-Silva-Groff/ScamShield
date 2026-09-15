@@ -1,0 +1,26 @@
+{
+  "reviewed_on": "2026-09-14",
+  "policy": "Intermediário possível: reduz apenas divergência de nome para WARNING de peso 10. Não comprova relação comercial nem autenticidade do boleto. CNPJ exato, sem exceções por raiz.",
+  "institutions": [
+    {
+      "cnpj": "00000000000191", "name": "Banco do Brasil S.A.", "aliases": ["Banco do Brasil"],
+      "reason": "Instituição financeira; beneficiário aparente pode diferir do intermediário da cobrança.",
+      "source": "https://portaldatransparencia.gov.br/pessoa-juridica/00000000000191"
+    },
+    {
+      "cnpj": "60701190000104", "name": "Itaú Unibanco S.A.", "aliases": ["Itaú Unibanco"],
+      "reason": "Instituição financeira; divergência nominal requer confirmação, sem provar fraude.",
+      "source": "https://www.itau.com.br/seguranca/termo-autorizacao"
+    },
+    {
+      "cnpj": "01027058000191", "name": "Cielo S.A. - Instituição de Pagamento", "aliases": ["Cielo"],
+      "reason": "Instituição de pagamento com serviços de intermediação entre compradores e vendedores.",
+      "source": "https://cieloecommerce.cielo.com.br/TransactionalVNext/termsofagreement.html"
+    },
+    {
+      "cnpj": "08561701000101", "name": "PagSeguro Internet Instituição de Pagamento S.A.", "aliases": ["PagBank", "PagSeguro"],
+      "reason": "Instituição de pagamento; cadastro do intermediário pode diferir do nome comercial apresentado.",
+      "source": "https://acesso.pagbank.com.br/"
+    }
+  ]
+}

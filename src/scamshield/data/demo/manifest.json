@@ -1,0 +1,255 @@
+[
+  {
+    "id": "safe",
+    "label": "Informações compatíveis",
+    "file": "safe.pdf",
+    "sha256": "6fe7e9fe07da3616b17e3ef048df7cf6669fbf1fb0c680b47b6496ece8b1da16",
+    "expected_status": "SAFE",
+    "expected_score": 0,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "name_warning",
+    "label": "Nome diferente no cadastro",
+    "file": "name_warning.pdf",
+    "sha256": "06f858c3765ce5a2fe20b372aa4bd229d1e0d501d8c5a1f5ae68f229128ca998",
+    "expected_status": "WARNING",
+    "expected_score": 25,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Outra Empresa",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "intermediary",
+    "label": "Cobrança com intermediário",
+    "file": "intermediary.pdf",
+    "sha256": "4af6a996358bc8c41f4d04e6f0a6bdbba011ab0ffa4b5adb16f45b7e69b7366f",
+    "expected_status": "WARNING",
+    "expected_score": 10,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Condomínio Horizonte",
+      "identifier": "00000000000191",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "00000000000191",
+      "legal_name": "Banco do Brasil S.A.",
+      "trade_name": "Banco do Brasil",
+      "situation": 2
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "amount_danger",
+    "label": "Valor adulterado",
+    "file": "amount_danger.pdf",
+    "sha256": "1f5bfdbc61fb8d5946b9a0a4767161cfd65bdd4b6bb08e545ae9d9b2ce9381bd",
+    "expected_status": "DANGER",
+    "expected_score": 60,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 95000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "registry_danger",
+    "label": "Cadastro baixado",
+    "file": "registry_danger.pdf",
+    "sha256": "99bdc9154b303f28c7921f19a61c86592500aafd8b71ccba16698e8e8e1708b6",
+    "expected_status": "DANGER",
+    "expected_score": 60,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DF16",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DF16",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 8
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "invalid_dv",
+    "label": "Erro nos dígitos verificadores",
+    "file": "invalid_dv.pdf",
+    "sha256": "ee4f8713781c6023332fb27ea7e4a26e5695eea70b5a0218307ff5ff5b9231ba",
+    "expected_status": "DANGER",
+    "expected_score": 70,
+    "line": "00192157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00192157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "unreadable",
+    "label": "Leitura indisponível",
+    "file": "unreadable.pdf",
+    "sha256": "1c013464d9f468f05c178a25fa37bf39405294a00a2e470df3a660b65c475f80",
+    "expected_status": "WARNING",
+    "expected_score": 10,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": "unreadable"
+  },
+  {
+    "id": "registry_timeout",
+    "label": "Consulta não terminou a tempo",
+    "file": "registry_timeout.pdf",
+    "sha256": "490202cfa8a245230641c49b6babc7617edbdfcd68fb77a53c0b7ac593c97797",
+    "expected_status": "WARNING",
+    "expected_score": 10,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte Serviços",
+      "identifier": "12ABC34501DG05",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "unavailable",
+      "cnpj": "12ABC34501DG05",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2,
+      "failure": "timeout"
+    },
+    "reader_failure": null
+  },
+  {
+    "id": "trade_name",
+    "label": "Nome fantasia compatível",
+    "file": "trade_name.pdf",
+    "sha256": "90c8350764fd88a83f2c1284244f49f39ce601a9b9d8646b7a1b734cfd199a17",
+    "expected_status": "SAFE",
+    "expected_score": 0,
+    "line": "00191157500000150001234567890123456789012345",
+    "extraction": {
+      "beneficiary_name": "Horizonte",
+      "identifier": "12ABC34501DE35",
+      "identifier_type": "CNPJ",
+      "nominal_amount_cents": 15000,
+      "due_date": "2026-09-20",
+      "bank_name": "Banco do Brasil",
+      "logo_name": "BB",
+      "payment_code": "00191157500000150001234567890123456789012345",
+      "uncertain_fields": []
+    },
+    "registry": {
+      "state": "found",
+      "cnpj": "12ABC34501DE35",
+      "legal_name": "Horizonte Serviços Ltda",
+      "trade_name": "Horizonte",
+      "situation": 2
+    },
+    "reader_failure": null
+  }
+]

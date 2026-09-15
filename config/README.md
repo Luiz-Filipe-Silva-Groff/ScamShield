@@ -1,0 +1,1 @@
+As configurações versionadas foram movidas para `src/scamshield/data/config/` para serem incluídas no pacote Python e no container. Esse é o único local de manutenção das listas de bancos e intermediários.

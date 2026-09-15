@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ScamShield · Verificação de boletos</title>
+  <link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="/">◈ <span>ScamShield</span></a><nav><span id="mode" class="badge">Conectando…</span><a href="/docs">Documentação ↗</a></nav></header>
+  <main>
+    <section class="intro"><p class="eyebrow">ANTES DO PAGAMENTO</p><h1>Confira o boleto.<br><span>Entenda os sinais de risco.</span></h1><p>O documento é lido, as informações são cruzadas e o risco é explicado. A decisão continua com o parceiro.</p></section>
+    <section class="workspace">
+      <div class="panel input-panel"><div class="section-heading"><span class="step">01</span><h2>Conteúdo da cobrança</h2></div>
+        <div id="demo-section" hidden><p class="hint">Escolha um cenário sintético para experimentar sem serviços externos.</p><div id="cases" class="cases"></div><div class="divider">ou envie um documento</div></div>
+        <label class="upload" for="file"><span class="upload-icon">↥</span><strong id="file-label">Selecionar boleto</strong><span>PDF, JPG ou PNG · até 5 MiB · PDF até 3 páginas</span><input id="file" type="file" accept="application/pdf,image/jpeg,image/png"></label>
+        <div id="selected" class="hint" aria-live="polite">Nenhum documento selecionado.</div>
+        <label for="line">Linha digitável ou código numérico <small>opcional com documento</small></label>
+        <textarea id="line" rows="3" maxlength="128" placeholder="Cole os 47 dígitos da linha ou os 44 do código de barras"></textarea>
+        <label for="key">Chave de acesso do parceiro</label><input id="key" type="password" autocomplete="off" placeholder="X-API-Key">
+        <p id="privacy" class="hint">O conteúdo enviado não é salvo pelo serviço. O resultado não confirma o recebedor efetivo.</p>
+        <div class="actions"><button id="analyze" class="primary">Analisar boleto <span>→</span></button><button id="clear" class="secondary">Limpar</button></div>
+        <p id="error" role="alert" class="error"></p>
+      </div>
+      <div class="panel result-panel"><div class="section-heading"><span class="step">02</span><h2>Resultado da verificação</h2></div>
+        <div id="empty" class="empty"><span class="empty-icon">◎</span><h3>Uma análise, sinais claros.</h3><p>Envie um documento ou selecione um cenário para visualizar o resultado.</p><div class="legend"><span>● Consistente</span><span>● Conferir</span><span>● Incompatível</span></div></div>
+        <div id="result" hidden aria-live="polite"><div class="result-top"><span id="status" class="badge"></span><span id="latency"></span></div><h2 id="title"></h2><p id="explanation"></p><div class="score-row"><strong id="score"></strong><span>/ 100 <small>peso dos sinais · não é probabilidade</small></span></div><div class="score-track"><div id="score-bar"></div></div><h3>Sinais avaliados</h3><ul id="signals"></ul><p class="limitation">Mesmo sem inconsistências, estas verificações não confirmam quem receberá o dinheiro.</p><details><summary>Detalhes para auditoria</summary><pre id="json"></pre></details><p id="request-id" class="request-id"></p></div>
+      </div>
+    </section>
+    <section class="principles"><p><strong>IA para extrair</strong><span>O modelo lê os campos do documento.</span></p><p><strong>Regras para verificar</strong><span>Os sinais e seus pesos ficam visíveis.</span></p><p><strong>Parceiro para decidir</strong><span>A API informa risco e nunca bloqueia pagamentos.</span></p></section>
+  </main><footer>ScamShield · Tech4Change 2026 <span>Protótipo B2B de análise de risco documental</span></footer>
+</body>
+</html>

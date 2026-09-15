@@ -1,0 +1,12 @@
+{
+  "reviewed_on": "2026-09-14",
+  "source": "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/pagamentos-e-parcelamentos/rede-arrecadadora-de-receitas-federais-bancos",
+  "scope": "Catálogo parcial do MVP; código ausente deve gerar WARNING, não banco inexistente.",
+  "banks": [
+    {"code": "001", "name": "Banco do Brasil S.A.", "aliases": ["Banco do Brasil", "BB"]},
+    {"code": "104", "name": "Caixa Econômica Federal", "aliases": ["Caixa"]},
+    {"code": "237", "name": "Banco Bradesco S.A.", "aliases": ["Bradesco"]},
+    {"code": "341", "name": "Itaú Unibanco S.A.", "aliases": ["Itaú", "Itaú Unibanco"]},
+    {"code": "748", "name": "Banco Cooperativo Sicredi S.A.", "aliases": ["Sicredi"]}
+  ]
+}
