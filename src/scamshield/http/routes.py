@@ -19,6 +19,11 @@ request_schema = AnalysisRequest.model_json_schema(ref_template="#/components/sc
 request_definitions = request_schema.pop("$defs", {})
 
 
+def too_large(limit: int) -> str:
+    """Mensagem com o limite realmente configurado, não um número fixo."""
+    return f"O corpo da requisição excede {limit / (1024 * 1024):.6g} MiB."
+
+
 def example(status, score, title, message):
     return {
         "value": {
@@ -109,13 +114,11 @@ async def analyze(request: Request, partner: str = Depends(authenticate)):
             if length < 0:
                 raise APIError(400, "invalid_length", "Tamanho do corpo inválido.")
             if length > settings.max_body_bytes:
-                raise APIError(413, "body_too_large", "O corpo da requisição excede 7 MiB.")
+                raise APIError(413, "body_too_large", too_large(settings.max_body_bytes))
         async with asyncio.timeout(settings.upload_timeout):
             async for chunk in request.stream():
                 if len(body) + len(chunk) > settings.max_body_bytes:
-                    raise APIError(
-                        413, "body_too_large", "O corpo da requisição excede o limite permitido."
-                    )
+                    raise APIError(413, "body_too_large", too_large(settings.max_body_bytes))
                 body.extend(chunk)
         try:
             payload = AnalysisRequest.model_validate_json(body)

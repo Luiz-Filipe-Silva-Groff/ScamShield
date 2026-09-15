@@ -95,6 +95,13 @@ def create_app(settings: Settings | None = None, *, reader=None, registry=None) 
                 title=app.title, version=app.version, description=app.description, routes=app.routes
             )
             schema["components"]["schemas"].update(request_definitions)
+            # O exemplo precisa refletir o modo real desta instância: publicado em
+            # live, um exemplo fixo em "demo" contradiria toda resposta da API.
+            examples = schema["paths"]["/v1/analise"]["post"]["responses"]["200"]["content"][
+                "application/json"
+            ]["examples"]
+            for item in examples.values():
+                item["value"]["details"]["mode"] = settings.mode
             app.openapi_schema = schema
         return app.openapi_schema
 

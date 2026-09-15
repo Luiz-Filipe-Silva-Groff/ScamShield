@@ -24,6 +24,9 @@ beneficiário sem papel claro: null nos campos afetados e seus nomes em uncertai
 Banco e logotipo são os do banco da ficha de compensação; não a marca do beneficiário.
 Retorne apenas o objeto JSON que segue o esquema solicitado."""
 
+OVERLOADED = frozenset({500, 502, 503, 504})
+MISCONFIGURED = frozenset({400, 401, 403})
+
 
 class GeminiReader:
     def __init__(self, client: httpx.AsyncClient, api_key: str, model: str, timeout: float):
@@ -31,6 +34,29 @@ class GeminiReader:
             raise ValueError("Identificador de modelo inválido.")
         self.client, self.api_key, self.model, self.timeout = client, api_key, model, timeout
         self.cooldown_until = 0.0
+
+    async def verify(self) -> None:
+        """Recusa a subida quando credencial ou modelo estão errados.
+
+        Erro de configuração nunca melhora sozinho: sem esta checagem ele vira um
+        sinal de incerteza em toda análise, e o serviço responde 200 com WARNING
+        para qualquer boleto sem indicar que está quebrado. Indisponibilidade
+        momentânea do provedor é transitória e não impede a subida.
+        """
+        try:
+            status, _, _ = await bounded_json(
+                self.client,
+                "GET",
+                f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}",
+                headers={"x-goog-api-key": self.api_key},
+                timeout=self.timeout,
+            )
+        except httpx.HTTPError:
+            return
+        if status in MISCONFIGURED:
+            raise ValueError("Credencial Gemini recusada pelo provedor.")
+        if status == 404:
+            raise ValueError(f"Modelo {self.model!r} indisponível para esta credencial.")
 
     async def read(self, content: bytes, mime_type: str) -> ExtractedDocument:
         if monotonic() < self.cooldown_until:
@@ -55,6 +81,9 @@ class GeminiReader:
                 "maxOutputTokens": 2048,
                 "responseMimeType": "application/json",
                 "responseJsonSchema": DocumentExtraction.model_json_schema(),
+                # Extração de campos visíveis não se beneficia de raciocínio: o
+                # orçamento zerado tira a latência imprevisível do caminho crítico.
+                "thinkingConfig": {"thinkingBudget": 0},
             },
             "store": False,
         }
@@ -71,6 +100,12 @@ class GeminiReader:
             if status == 429:
                 self.cooldown_until = monotonic() + retry_seconds(retry_after)
                 raise ReaderError(DocumentFailure.RATE_LIMITED)
+            if status in OVERLOADED:
+                # Sobrecarga do provedor persiste por minutos e a resposta demora
+                # dezenas de segundos. Sem cooldown, cada requisição paga essa espera
+                # de novo antes do mesmo erro; com ele, falha rápido e honesto.
+                self.cooldown_until = monotonic() + retry_seconds(retry_after)
+                raise ReaderError(DocumentFailure.UNAVAILABLE)
             if status != 200:
                 raise ReaderError(DocumentFailure.UNAVAILABLE)
             candidates = payload["candidates"]

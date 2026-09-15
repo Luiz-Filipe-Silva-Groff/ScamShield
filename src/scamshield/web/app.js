@@ -12,28 +12,39 @@ function toBase64(blob) {
 }
 function error(message) { $('error').textContent = message; }
 function clearResult() { $('result').hidden = true; $('empty').hidden = false; $('json').textContent = ''; }
+function resetSelection() {
+  documentData = null;
+  $('selected').classList.remove('file-ready');
+  $('selected').textContent = 'Nenhum documento selecionado.';
+  $('file-label').textContent = 'Selecionar boleto';
+}
 function setBusy(value) {
   busy = value;
   document.querySelectorAll('button,input,textarea').forEach(node => { node.disabled = value; });
   $('analyze').textContent = value ? 'Conferindo as informações…' : 'Analisar boleto →';
 }
 async function chooseFile(file) {
-  documentData = null;
+  resetSelection();
   clearResult(); error('');
   if (!file || file.size > 5 * 1024 * 1024) { error('Selecione um arquivo com até 5 MiB.'); return; }
   if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) { error('Use um PDF, JPG ou PNG.'); return; }
   documentData = { mime_type: file.type, base64: await toBase64(file) };
-  $('selected').textContent = file.name || 'Documento sintético selecionado.';
+  $('selected').classList.add('file-ready');
+  $('selected').textContent = `Arquivo carregado: ${file.name || 'boleto.pdf'} (${Math.max(1, Math.ceil(file.size / 1024))} KB). Clique em “Analisar boleto” para conferir.`;
+  $('file-label').textContent = 'Trocar boleto';
 }
 $('file').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (document.querySelector('.case.active')) $('line').value = '';
   document.querySelectorAll('.case').forEach(node => node.classList.remove('active'));
   setBusy(true);
-  try { await chooseFile(event.target.files[0]); } catch { error('Não foi possível ler o arquivo.'); }
+  try { await chooseFile(file); } catch { error('Não foi possível ler o arquivo.'); }
   finally { setBusy(false); }
 });
 $('clear').addEventListener('click', () => {
-  documentData = null; $('file').value = ''; $('line').value = '';
-  $('selected').textContent = 'Nenhum documento selecionado.'; error(''); clearResult();
+  resetSelection(); $('file').value = ''; $('line').value = '';
+  error(''); clearResult();
   document.querySelectorAll('.case').forEach(node => node.classList.remove('active'));
 });
 $('analyze').addEventListener('click', async () => {
@@ -80,6 +91,7 @@ async function initialize() {
     }
     $('key').value = 'scamshield-demo-local';
     $('demo-section').hidden = false;
+    $('demo-upload-note').hidden = false;
     const cases = await (await fetch('/demo/cases')).json();
     for (const item of cases) {
       const button = document.createElement('button'); button.className = 'case'; button.textContent = item.label;
@@ -88,6 +100,7 @@ async function initialize() {
         try {
           const response = await fetch('/demo/files/' + encodeURIComponent(item.id));
           if (!response.ok) throw new Error();
+          $('file').value = '';
           await chooseFile(new File([await response.blob()], item.label + '.pdf', { type: 'application/pdf' }));
           $('line').value = item.line;
           document.querySelectorAll('.case').forEach(node => node.classList.remove('active'));

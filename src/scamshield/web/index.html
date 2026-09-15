@@ -14,6 +14,7 @@
         <div id="demo-section" hidden><p class="hint">Escolha um cenário sintético para experimentar sem serviços externos.</p><div id="cases" class="cases"></div><div class="divider">ou envie um documento</div></div>
         <label class="upload" for="file"><span class="upload-icon">↥</span><strong id="file-label">Selecionar boleto</strong><span>PDF, JPG ou PNG · até 5 MiB · PDF até 3 páginas</span><input id="file" type="file" accept="application/pdf,image/jpeg,image/png"></label>
         <div id="selected" class="hint" aria-live="polite">Nenhum documento selecionado.</div>
+        <p id="demo-upload-note" class="hint" hidden>Nesta demonstração, apenas os PDFs dos cenários são reconhecidos. Outros boletos podem ser enviados, mas retornam um aviso de leitura indisponível. A leitura de documentos reais exige ativar as integrações.</p>
         <label for="line">Linha digitável ou código numérico <small>opcional com documento</small></label>
         <textarea id="line" rows="3" maxlength="128" placeholder="Cole os 47 dígitos da linha ou os 44 do código de barras"></textarea>
         <label for="key">Chave de acesso do parceiro</label><input id="key" type="password" autocomplete="off" placeholder="X-API-Key">
