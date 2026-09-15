@@ -40,7 +40,7 @@ python3.11 -m venv .venv
 .venv/bin/python run.py
 ```
 
-O launcher usa `127.0.0.1:8000`; `python run.py --port 8001` escolhe outra porta. O Compose publica apenas no loopback. Usar **um processo/worker**: limites em memória não se distribuem entre réplicas.
+O launcher usa `127.0.0.1:8000`; `python run.py --port 8001` escolhe outra porta. Em hospedagem que atribui a porta em tempo de execução, a variável `PORT` é respeitada e o container não fixa `--port`. O Compose publica apenas no loopback. Usar **um processo/worker**: limites em memória não se distribuem entre réplicas.
 
 ## Contrato e requisições
 
