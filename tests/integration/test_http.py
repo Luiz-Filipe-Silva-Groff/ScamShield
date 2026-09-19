@@ -5,6 +5,7 @@ import json
 import logging
 import socket
 import tempfile
+import zipfile
 from pathlib import Path
 from uuid import UUID
 
@@ -178,11 +179,17 @@ def test_rate_limit_is_per_partner():
 def test_static_demo_and_openapi(client):
     assert client.get("/").status_code == 200
     assert client.get("/static/app.js").status_code == 200
+    # Sem ícone declarado o navegador pede /favicon.ico e registra 404 no console.
+    assert 'href="/static/favicon.svg"' in client.get("/").text
+    assert client.get("/static/favicon.svg").status_code == 200
     assert client.get("/docs").status_code == 200
     assert client.get("/health").json()["mode"] == "demo"
-    assert len(client.get("/demo/cases").json()) == len(CASES)
+    demo_cases = client.get("/demo/cases").json()
+    assert len(demo_cases) == len(CASES)
+    assert {case["file"] for case in demo_cases} == {case["file"] for case in CASES}
     assert client.get("/demo/files/safe").content.startswith(b"%PDF-")
     assert client.get("/demo/files/not-found").status_code == 404
+    assert client.get("/demo/access").json() == {"partner": "demo", "key": DEMO_KEY}
     schema = client.get("/openapi.json").json()
     operation = schema["paths"]["/v1/analise"]["post"]
     assert set(operation["responses"]["200"]["content"]["application/json"]["examples"]) == {
@@ -192,6 +199,43 @@ def test_static_demo_and_openapi(client):
     }
     assert operation["security"] == [{"APIKeyHeader": []}]
     assert "DocumentInput" in schema["components"]["schemas"]
+
+
+def test_demo_access_prefers_the_public_key_over_a_private_one():
+    """Config mesclada de .env e ambiente: a página não pode publicar a chave própria."""
+    settings = Settings(_env_file=None, api_keys={"parceiro-proprio": "x" * 32, "demo": DEMO_KEY})
+    with TestClient(create_app(settings)) as client:
+        assert client.get("/demo/access").json() == {"partner": "demo", "key": DEMO_KEY}
+
+
+def test_demo_archive_round_trips_through_analysis(client):
+    """O caminho que o avaliador percorre: baixar o pacote, extrair e reenviar o PDF."""
+    response = client.get("/demo/files.zip")
+    assert response.headers["content-type"] == "application/zip"
+    assert "scamshield-boletos-demo.zip" in response.headers["content-disposition"]
+    with zipfile.ZipFile(io.BytesIO(response.content)) as bundle:
+        assert set(bundle.namelist()) == {case["file"] for case in CASES} | {"LEIA-ME.txt"}
+        leia_me = bundle.read("LEIA-ME.txt").decode("utf-8")
+        assert "código:" not in leia_me
+        for case in CASES:
+            assert case["label"] in leia_me
+        for case in CASES:
+            content = bundle.read(case["file"])
+            assert content.startswith(b"%PDF-")
+            analysis = client.post(
+                "/v1/analise",
+                headers=HEADERS,
+                json={
+                    "linha_digitavel": case["line"],
+                    "documento": {
+                        "mime_type": "application/pdf",
+                        "base64": base64.b64encode(content).decode(),
+                    },
+                },
+            )
+            assert analysis.status_code == 200, analysis.text
+            assert analysis.json()["status"] == case["expected_status"]
+            assert analysis.json()["score"] == case["expected_score"]
 
 
 def test_live_never_exposes_demo_files():
@@ -205,6 +249,8 @@ def test_live_never_exposes_demo_files():
     with TestClient(create_app(settings)) as client:
         assert client.get("/demo/cases").status_code == 404
         assert client.get("/demo/files/safe").status_code == 404
+        assert client.get("/demo/files.zip").status_code == 404
+        assert client.get("/demo/access").status_code == 404
         assert client.get("/health").json()["mode"] == "live"
 
 

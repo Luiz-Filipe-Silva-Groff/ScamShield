@@ -1,6 +1,7 @@
 const $ = id => document.getElementById(id);
 let documentData = null;
 let busy = false;
+const demoCasesByFile = new Map();
 
 function toBase64(blob) {
   return new Promise((resolve, reject) => {
@@ -11,7 +12,10 @@ function toBase64(blob) {
   });
 }
 function error(message) { $('error').textContent = message; }
-function clearResult() { $('result').hidden = true; $('empty').hidden = false; $('json').textContent = ''; }
+function clearResult() {
+  $('result').hidden = true; $('unknown').hidden = true; $('empty').hidden = false;
+  $('json').textContent = ''; $('unknown-json').textContent = '';
+}
 function resetSelection() {
   documentData = null;
   $('selected').classList.remove('file-ready');
@@ -29,8 +33,11 @@ async function chooseFile(file) {
   if (!file || file.size > 5 * 1024 * 1024) { error('Selecione um arquivo com até 5 MiB.'); return; }
   if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) { error('Use um PDF, JPG ou PNG.'); return; }
   documentData = { mime_type: file.type, base64: await toBase64(file) };
+  const demoCase = demoCasesByFile.get(file.name.toLowerCase());
+  if (demoCase) $('line').value = demoCase.line;
   $('selected').classList.add('file-ready');
-  $('selected').textContent = `Arquivo carregado: ${file.name || 'boleto.pdf'} (${Math.max(1, Math.ceil(file.size / 1024))} KB). Clique em “Analisar boleto” para conferir.`;
+  const demoMessage = demoCase ? ` Código de teste preenchido para “${demoCase.label}”.` : '';
+  $('selected').textContent = `Arquivo carregado: ${file.name || 'boleto.pdf'} (${Math.max(1, Math.ceil(file.size / 1024))} KB).${demoMessage} Clique em “Analisar boleto” para conferir.`;
   $('file-label').textContent = 'Trocar boleto';
 }
 $('file').addEventListener('change', async event => {
@@ -63,6 +70,15 @@ $('analyze').addEventListener('click', async () => {
     const response = await fetch('/v1/analise', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-API-Key': $('key').value }, body: JSON.stringify(request), signal: controller.signal });
     const result = await response.json();
     if (!response.ok) { error(result.message || 'Não foi possível concluir a análise.'); return; }
+    // Arquivo fora do catálogo da demo devolve WARNING/10 como qualquer documento
+    // ilegível. Mostrado como score, parece veredito de risco sobre o boleto de
+    // quem testou; o que houve foi a demo não reconhecer o arquivo.
+    if (result.details.signals.some(signal => signal.code === 'DOCUMENT_UNKNOWN_DEMO_DOCUMENT')) {
+      $('empty').hidden = true; $('unknown').hidden = false;
+      $('unknown-json').textContent = JSON.stringify(result, null, 2);
+      $('unknown-request-id').textContent = 'ID da análise: ' + result.request_id;
+      return;
+    }
     $('empty').hidden = true; $('result').hidden = false; $('result').className = result.status;
     $('status').textContent = result.status; $('title').textContent = result.title;
     $('explanation').textContent = result.explanation; $('score').textContent = result.score;
@@ -89,11 +105,29 @@ async function initialize() {
       $('privacy').textContent = 'O serviço processa o arquivo em memória e o envia ao provedor de leitura configurado. A retenção externa segue os termos desse provedor.';
       return;
     }
-    $('key').value = 'scamshield-demo-local';
+    // A chave vem do servidor: fixá-la aqui quebraria a página em qualquer
+    // instância que configure um parceiro próprio.
+    const access = await (await fetch('/demo/access')).json();
+    $('key').value = access.key;
+    $('key').type = 'text';
+    $('key-note').hidden = false;
     $('demo-section').hidden = false;
     $('demo-upload-note').hidden = false;
     const cases = await (await fetch('/demo/cases')).json();
+    for (const item of cases) demoCasesByFile.set(item.file.toLowerCase(), item);
+    $('downloads-summary').textContent = `Baixar os boletos de teste (${cases.length} PDFs)`;
+    $('downloads').hidden = false;
     for (const item of cases) {
+      const li = document.createElement('li');
+      const row = document.createElement('div'); row.className = 'dl-row';
+      const link = document.createElement('a');
+      link.href = '/demo/files/' + encodeURIComponent(item.id);
+      link.setAttribute('download', '');
+      link.textContent = '⤓ ' + item.label;
+      const expected = document.createElement('span');
+      expected.textContent = `${item.expected_status} · ${item.expected_score}`;
+      row.append(link, expected);
+      li.append(row); $('download-list').append(li);
       const button = document.createElement('button'); button.className = 'case'; button.textContent = item.label;
       button.addEventListener('click', async () => {
         setBusy(true);

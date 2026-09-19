@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ScamShield · Verificação de boletos</title>
-  <link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
 </head>
 <body>
   <header><a class="brand" href="/">◈ <span>ScamShield</span></a><nav><span id="mode" class="badge">Conectando…</span><a href="/docs">Documentação ↗</a></nav></header>
@@ -12,18 +12,21 @@
     <section class="workspace">
       <div class="panel input-panel"><div class="section-heading"><span class="step">01</span><h2>Conteúdo da cobrança</h2></div>
         <div id="demo-section" hidden><p class="hint">Escolha um cenário sintético para experimentar sem serviços externos.</p><div id="cases" class="cases"></div><div class="divider">ou envie um documento</div></div>
+        <details id="downloads" hidden><summary id="downloads-summary">Baixar os boletos de teste</summary><p class="hint">Baixe um PDF e envie no campo abaixo para percorrer o fluxo completo. São documentos sintéticos, marcados “SEM VALOR DE PAGAMENTO”. Ao reconhecer um desses arquivos, a demonstração preenche automaticamente os dados necessários para o cenário.</p><ul id="download-list"></ul><a id="download-all" class="download-all" href="/demo/files.zip" download>⤓ Baixar todos em .zip</a></details>
         <label class="upload" for="file"><span class="upload-icon">↥</span><strong id="file-label">Selecionar boleto</strong><span>PDF, JPG ou PNG · até 5 MiB · PDF até 3 páginas</span><input id="file" type="file" accept="application/pdf,image/jpeg,image/png"></label>
         <div id="selected" class="hint" aria-live="polite">Nenhum documento selecionado.</div>
-        <p id="demo-upload-note" class="hint" hidden>Nesta demonstração, apenas os PDFs dos cenários são reconhecidos. Outros boletos podem ser enviados, mas retornam um aviso de leitura indisponível. A leitura de documentos reais exige ativar as integrações.</p>
+        <p id="demo-upload-note" class="hint" hidden>Nesta demonstração, apenas os PDFs dos cenários são reconhecidos. Outros boletos podem ser enviados, mas o resultado apenas informa que o documento não foi reconhecido — não é um veredito de risco sobre ele. A leitura de documentos reais exige ativar as integrações.</p>
         <label for="line">Linha digitável ou código numérico <small>opcional com documento</small></label>
         <textarea id="line" rows="3" maxlength="128" placeholder="Cole os 47 dígitos da linha ou os 44 do código de barras"></textarea>
         <label for="key">Chave de acesso do parceiro</label><input id="key" type="password" autocomplete="off" placeholder="X-API-Key">
+        <p id="key-note" class="hint" hidden>Chave desta demonstração, já preenchida. Ela é pública e serve apenas aos cenários sintéticos.</p>
         <p id="privacy" class="hint">O conteúdo enviado não é salvo pelo serviço. O resultado não confirma o recebedor efetivo.</p>
         <div class="actions"><button id="analyze" class="primary">Analisar boleto <span>→</span></button><button id="clear" class="secondary">Limpar</button></div>
         <p id="error" role="alert" class="error"></p>
       </div>
       <div class="panel result-panel"><div class="section-heading"><span class="step">02</span><h2>Resultado da verificação</h2></div>
         <div id="empty" class="empty"><span class="empty-icon">◎</span><h3>Uma análise, sinais claros.</h3><p>Envie um documento ou selecione um cenário para visualizar o resultado.</p><div class="legend"><span>● Consistente</span><span>● Conferir</span><span>● Incompatível</span></div></div>
+        <div id="unknown" hidden aria-live="polite"><span class="unknown-icon">◌</span><h3>Documento não reconhecido nesta demonstração</h3><p>Esta instância roda em modo demonstração e só identifica os nove boletos sintéticos fornecidos. Ela não tentou adivinhar o conteúdo do arquivo enviado.</p><p>Selecione um cenário acima, ou baixe um dos PDFs de teste e envie. Para ler boletos reais é preciso ativar o modo <code>live</code>, com o provedor de leitura configurado.</p><details><summary>Detalhes para auditoria</summary><pre id="unknown-json"></pre></details><p id="unknown-request-id" class="request-id"></p></div>
         <div id="result" hidden aria-live="polite"><div class="result-top"><span id="status" class="badge"></span><span id="latency"></span></div><h2 id="title"></h2><p id="explanation"></p><div class="score-row"><strong id="score"></strong><span>/ 100 <small>peso dos sinais · não é probabilidade</small></span></div><div class="score-track"><div id="score-bar"></div></div><h3>Sinais avaliados</h3><ul id="signals"></ul><p class="limitation">Mesmo sem inconsistências, estas verificações não confirmam quem receberá o dinheiro.</p><details><summary>Detalhes para auditoria</summary><pre id="json"></pre></details><p id="request-id" class="request-id"></p></div>
       </div>
     </section>

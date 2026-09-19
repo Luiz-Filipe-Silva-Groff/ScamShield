@@ -7,7 +7,7 @@ import httpx
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 
@@ -19,7 +19,7 @@ from .integrations.brasilapi import BrasilAPI
 from .integrations.fakes import DemoCatalog, FakeDocumentReader, FakeRegistry
 from .integrations.gemini_reader import GeminiReader
 from .services.analysis import AnalysisService
-from .settings import Settings
+from .settings import DEMO_KEY, Settings
 
 
 def create_app(settings: Settings | None = None, *, reader=None, registry=None) -> FastAPI:
@@ -122,9 +122,38 @@ def create_app(settings: Settings | None = None, *, reader=None, registry=None) 
         if settings.mode != "demo":
             raise APIError(404, "not_found", "Demonstração indisponível neste modo.")
         return [
-            {k: case[k] for k in ("id", "label", "expected_status", "expected_score", "line")}
+            {
+                k: case[k]
+                for k in ("id", "label", "file", "expected_status", "expected_score", "line")
+            }
             for case in request.app.state.catalog.cases
         ]
+
+    @app.get("/demo/access", include_in_schema=False)
+    async def demo_access():
+        # Em demo a credencial é pública por definição: a instância não chama serviço
+        # externo nem gasta cota, e o regulamento pede a credencial divulgada. Por isso
+        # uma chave usada numa demo pública não deve ser reaproveitada em live.
+        if settings.mode != "demo":
+            raise APIError(404, "not_found", "Demonstração indisponível neste modo.")
+        # Settings mescla os dicionários de .env e das variáveis de ambiente em vez de
+        # substituir um pelo outro, então mais de um parceiro pode chegar aqui. Publicar
+        # a chave pública conhecida, quando existir, evita expor uma credencial própria.
+        for partner, key in settings.api_keys.items():
+            if key.get_secret_value() == DEMO_KEY:
+                return {"partner": partner, "key": DEMO_KEY}
+        partner, key = next(iter(settings.api_keys.items()))
+        return {"partner": partner, "key": key.get_secret_value()}
+
+    @app.get("/demo/files.zip", include_in_schema=False)
+    async def demo_archive(request: Request):
+        if settings.mode != "demo":
+            raise APIError(404, "not_found", "Demonstração indisponível neste modo.")
+        return Response(
+            request.app.state.catalog.archive,
+            media_type="application/zip",
+            headers={"content-disposition": 'attachment; filename="scamshield-boletos-demo.zip"'},
+        )
 
     @app.get("/demo/files/{case_id}", include_in_schema=False)
     async def demo_file(case_id: str, request: Request):

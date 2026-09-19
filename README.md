@@ -12,9 +12,9 @@ Com Docker e Docker Compose instalados, na raiz do projeto:
 docker compose up --build
 ```
 
-Abra [a demonstração](http://localhost:8000), [Swagger](http://localhost:8000/docs) ou [OpenAPI JSON](http://localhost:8000/openapi.json). O modo padrão é `demo`. A chave **pública, exclusiva de teste** é `scamshield-demo-local`; ela já aparece preenchida na tela e não funciona em modo `live`.
+Abra [a demonstração](http://localhost:8000), [Swagger](http://localhost:8000/docs) ou [OpenAPI JSON](http://localhost:8000/openapi.json). O modo padrão é `demo`. Em demo a chave de acesso **já vem preenchida na tela**: a página a obtém de `/demo/access`, que devolve a credencial configurada na própria instância — por padrão `scamshield-demo-local`, **pública e exclusiva de teste**. Ela não funciona em modo `live`.
 
-Selecione um cenário e clique em **Analisar boleto**. Documentos desconhecidos em demo retornam WARNING; o fake nunca finge ter lido um arquivo arbitrário. Toda resposta indica `details.mode`.
+Selecione um cenário e clique em **Analisar boleto**. Para percorrer o envio de arquivo, abra **Baixar os boletos de teste**, baixe um PDF (ou todos, em `.zip`) e envie no campo de upload. Documentos desconhecidos em demo retornam WARNING com o sinal `DOCUMENT_UNKNOWN_DEMO_DOCUMENT`; o fake nunca finge ter lido um arquivo arbitrário. Nesse caso a tela mostra **"Documento não reconhecido nesta demonstração"** em vez de um score, para que o peso 10 não seja lido como veredito de risco sobre o arquivo enviado — a resposta da API não muda, e o JSON completo continua em "Detalhes para auditoria". Toda resposta indica `details.mode`.
 
 O primeiro build baixa dependências. Depois, o fluxo demonstrativo e a tela funcionam sem serviços externos. O Swagger padrão do FastAPI carrega assets de CDN; a tela principal e `/openapi.json` não dependem disso.
 
@@ -123,7 +123,11 @@ Com o servidor ligado: `python scripts/check_demo.py`. Use `--url http://localho
 
 Copie `.env.example` para `.env`, selecione `SCAMSHIELD_MODE=live`, configure `SCAMSHIELD_API_KEYS` como JSON `{ "id-do-parceiro": "chave-aleatoria" }`, preencha `SCAMSHIELD_GEMINI_API_KEY` e escolha `SCAMSHIELD_GEMINI_MODEL`. Reinicie o serviço. Uma chave própria pode ser gerada com `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
 
-Live recusa a chave de demonstração, chaves menores que 24 caracteres e ausência de credencial/modelo. `/demo/cases` e `/demo/files/*` ficam indisponíveis. Nunca versionar `.env` ou segredos reais. A credencial pública da demo não é segredo de produção.
+Live recusa a chave de demonstração, chaves menores que 24 caracteres e ausência de credencial/modelo. `/demo/cases`, `/demo/access`, `/demo/files/*` e `/demo/files.zip` ficam indisponíveis. Nunca versionar `.env` ou segredos reais. A credencial pública da demo não é segredo de produção.
+
+**Uma instância em modo `demo` publica a própria chave** em `/demo/access`, para que a tela funcione sem digitação. É intencional: em demo não há serviço externo nem cota consumida, e o avaliador precisa da credencial. Por isso, **nunca configure em uma demo pública a mesma chave que será usada em `live`** — gere uma chave só para ela, ou deixe o padrão.
+
+Atenção a um detalhe do carregamento: `SCAMSHIELD_API_KEYS` definido em `.env` e em variável de ambiente é **mesclado**, não substituído, então os dois parceiros passam a existir. Nesse caso `/demo/access` publica a chave pública `scamshield-demo-local` quando ela estiver entre eles, justamente para não expor a outra. A imagem Docker não copia `.env` (ver `.dockerignore`), de modo que na hospedagem valem apenas as variáveis da plataforma.
 
 `GeminiReader` usa REST `models.generateContent`, arquivo inline em memória, resposta estruturada, `store: false` e modelo configurável. O prompt não pede risco, não habilita ferramentas e trata o documento como dado não confiável. A interface `DocumentReader` separa provedor e negócio.
 
