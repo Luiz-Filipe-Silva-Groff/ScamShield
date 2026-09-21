@@ -204,7 +204,23 @@ Confira [docs/validacao.md](docs/validacao.md) para resultados e limites da veri
 
 ## Equipe e contribuições
 
-**A preencher pela equipe:** nomes e contribuições reais não foram informados. Não foram inventados integrantes, entrevistas, métricas ou resultados. Completar antes da entrega formal.
+### Gabriel De Almeida Moreira
+
+* Participação na ideação e definição da proposta da solução.
+* Realização da pesquisa de validação por meio de formulário (Forms), contribuindo para a coleta de percepções e necessidades relacionadas ao problema.
+
+### Lucas Souza Rocha
+
+* Participação na ideação e definição da proposta da solução.
+* Publicação e disponibilização do projeto em ambiente de Cloud, garantindo sua execução e acesso.
+* Preparação e apresentação do pitch da solução.
+
+### Luiz Filipe Silva Groff
+
+* Participação na ideação e definição da proposta da solução.
+* Desenvolvimento do MVP (Minimum Viable Product) da solução.
+* Elaboração dos slides e do material em PDF utilizados na apresentação.
+
 
 ## Limitações e próximos passos
 
